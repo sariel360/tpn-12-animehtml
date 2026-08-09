@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dando Vida al Código — TP12 | Anime.js</title>
+  <meta name="description" content="Hero section interactivo inspirado en la salida de una carrera de simracing, animado con Anime.js.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Barra superior tipo HUD -->
+  <header class="hud-bar">
+    <span class="hud-id">SIM.HUD // TP12</span>
+    <span class="hud-version">v1.0 — ANIME.JS</span>
+  </header>
+
+  <main class="hero" id="hero">
+
+    <!-- Dial giratorio de fondo (decorativo).
+         Se separa en dos capas porque anime.js sobrescribe el transform
+         completo de un elemento en cada llamada: si una animación mueve
+         (translate) y otra rota el mismo elemento, se pisan entre sí.
+         Acá .dial-parallax se traslada con el mouse y .dial rota solo. -->
+    <div class="dial-wrap" aria-hidden="true">
+      <div class="dial-parallax" id="dial-parallax">
+        <div class="dial"></div>
+      </div>
+    </div>
+
+    <!-- Franjas de velocidad (decorativo) -->
+    <div class="speedlines" id="speedlines" aria-hidden="true"></div>
+
+    <!-- Secuencia de luces de largada (5 luces, estilo semáforo de carrera) -->
+    <div class="lights" id="lights" aria-hidden="true">
+      <span class="light"></span>
+      <span class="light"></span>
+      <span class="light"></span>
+      <span class="light"></span>
+      <span class="light"></span>
+    </div>
+
+    <!-- Contenido principal (se arma letra por letra vía JS) -->
+    <h1 class="title" id="title" data-text="DANDO VIDA AL CÓDIGO">DANDO VIDA AL CÓDIGO</h1>
+    <p class="subtitle" id="subtitle">Telemetría de una animación construida con Anime.js</p>
+
+    <div class="cta-row" id="cta-row">
+      <button class="btn btn-primary" id="replay-btn" type="button">
+        <span aria-hidden="true">▶</span> Repetir secuencia
+      </button>
+      <!-- TODO: reemplazar href por la URL real del repositorio en GitHub -->
+      <a class="btn btn-ghost" id="github-link" href="#" target="_blank" rel="noopener">
+        Ver el código <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <p class="hint" id="hint">Movés el mouse: el panel reacciona. Tocás el botón: la largada se repite.</p>
+  </main>
+
+  <!-- Barra de telemetría inferior -->
+  <footer class="telemetry-bar">
+    <div class="telemetry-item">
+      <span class="telemetry-label">RPM</span>
+      <span class="telemetry-value" id="rpm-value">0</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-label">Velocidad</span>
+      <span class="telemetry-value" id="speed-value">0</span>
+      <span class="telemetry-unit">km/h</span>
+    </div>
+    <div class="telemetry-item">
+      <span class="telemetry-label">Vuelta</span>
+      <span class="telemetry-value telemetry-mono" id="lap-value">00:00.000</span>
+    </div>
+  </footer>
+
+  <!-- Anime.js vía CDN (requisito técnico obligatorio #1) -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

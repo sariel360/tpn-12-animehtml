@@ -1,0 +1,284 @@
+/* =========================================================
+   TP12 — Dando Vida al Código con Anime.js
+   Tema: HUD de telemetría de simracing (salida de carrera)
+   ========================================================= */
+
+/* ---- Tokens de diseño ---- */
+:root {
+  --bg-asphalt:   #0b0d0e;
+  --bg-panel:     #14171a;
+  --bg-panel-2:   #1b1f23;
+  --line-subtle:  rgba(232, 230, 225, 0.08);
+
+  --red-light:    #ff3b30;
+  --red-light-dim:#4a1512;
+  --green-go:     #00d26a;
+  --amber-data:   #ffb020;
+
+  --text-main:    #e8e6e1;
+  --text-muted:   #8b9096;
+
+  --font-display: 'Rajdhani', 'Arial Narrow', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* ---- Reset base ---- */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-asphalt);
+  color: var(--text-main);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: inherit; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber-data);
+  outline-offset: 3px;
+}
+
+/* ---- Barra superior HUD ---- */
+.hud-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px clamp(20px, 5vw, 48px);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--line-subtle);
+  z-index: 5;
+}
+
+/* ---- Hero ---- */
+.hero {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px clamp(16px, 6vw, 64px);
+  overflow: hidden;
+}
+
+/* Dial giratorio de fondo, puramente decorativo.
+   .dial-wrap centra con flexbox (no usa transform, así queda libre).
+   .dial-parallax recibe la traslación por movimiento del mouse.
+   .dial recibe la rotación continua en loop. Cada capa anima un solo
+   eje del transform para que las animaciones de anime.js no compitan. */
+.dial-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.dial-parallax {
+  width: min(90vw, 780px);
+  height: min(90vw, 780px);
+  will-change: transform;
+}
+.dial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(232, 230, 225, 0.05) 0deg 2deg,
+      transparent 2deg 9deg
+    );
+  opacity: 0.5;
+  will-change: transform;
+}
+.dial::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid var(--line-subtle);
+}
+
+/* Franjas de velocidad de fondo */
+.speedlines {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-12deg) scale(1.4);
+  pointer-events: none;
+  z-index: 0;
+}
+.speedline {
+  position: absolute;
+  height: 1px;
+  width: 140px;
+  background: linear-gradient(90deg, transparent, var(--amber-data), transparent);
+  opacity: 0;
+}
+
+/* Luces de largada */
+.lights {
+  display: flex;
+  gap: clamp(10px, 2.4vw, 22px);
+  margin-bottom: clamp(28px, 5vw, 48px);
+  z-index: 2;
+}
+.light {
+  width: clamp(16px, 3vw, 26px);
+  height: clamp(16px, 3vw, 26px);
+  border-radius: 50%;
+  background: var(--red-light-dim);
+  box-shadow: inset 0 0 0 1px rgba(232, 230, 225, 0.12);
+}
+
+/* Título */
+.title {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 18px;
+  font-weight: 700;
+  font-size: clamp(2.1rem, 7.5vw, 5.2rem);
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--text-main);
+}
+.title .word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.title .letter {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+.title .letter.is-space { width: 0.32em; }
+
+.subtitle {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 clamp(28px, 5vw, 44px);
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  opacity: 0;
+}
+
+/* Botones */
+.cta-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 3px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.98rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transform: scale(0);
+  opacity: 0;
+}
+
+.btn-primary {
+  background: var(--amber-data);
+  color: #14120a;
+  border-color: var(--amber-data);
+}
+.btn-primary:hover { background: #ffc453; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--line-subtle);
+}
+.btn-ghost:hover { border-color: var(--text-muted); }
+
+.hint {
+  position: relative;
+  z-index: 2;
+  margin: 26px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  opacity: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Barra de telemetría inferior ---- */
+.telemetry-bar {
+  display: flex;
+  justify-content: center;
+  gap: clamp(24px, 6vw, 64px);
+  padding: 16px clamp(20px, 5vw, 48px) 22px;
+  border-top: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  z-index: 5;
+  flex-wrap: wrap;
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.telemetry-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.telemetry-value {
+  font-size: 1rem;
+  color: var(--amber-data);
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry-unit {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* ---- Accesibilidad: reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+  .telemetry-bar { gap: 20px; }
+  .hint { max-width: 32ch; margin-left: auto; margin-right: auto; }
+}
